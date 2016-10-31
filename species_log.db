@@ -1,0 +1,6 @@
+## This text file serves to provide the minimal basis for valence oribtals
+given an atomic species.
+
+Species        Min_basis
+C              4
+H              1
