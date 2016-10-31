@@ -1,5 +1,5 @@
 import numpy as np
-from read_coord import Atomic_Coordinates
+from read_coord import AtomicCoordinates
 
 """
 Author: Jack Baker
@@ -14,15 +14,15 @@ mass_electron = 9.10938356e-31 #kg
 reduc_pl_const = 1.054571800e-34
 
 
-class H_Matrix(Atomic_Coordinates):
+class HamiltonianMatrix(AtomicCoordinates):
     """
     A child class of Atomic_Coordinates used for building and solving
     the tight binding Hamiltonian matrix.
     """
     
     def __init__(self, coord_file, species_dict={}, coords_dict={}):
-        Atomic_Coordinates.__init__(self, coord_file, species_dict, coords_dict)
-        Atomic_Coordinates.generate_dict(self)
+        AtomicCoordinates.__init__(self, coord_file, species_dict, coords_dict)
+        AtomicCoordinates.generate_dict(self)
         orbital_no = 0
         for key, species in self.species_dict.items():
             searchfile = open("species_log.db", "r")
@@ -64,9 +64,21 @@ class H_Matrix(Atomic_Coordinates):
         return V
 
     @staticmethod
-    def slater_koster_table(orb_i, orb_j):
-        if orb_i == "S" and orb_i == "S":
-            element = lambda: V_coeff()
+    def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
+        if orb_i == "s" and orb_j == "s":
+            element = V_coeff(eta_coeff("s", "s", "sigma"), dist_ij)
+        elif orb_i == "s" and orb_j == "x":
+            element = x_dir_cos * V_Coeff(eta_coeff("s", "p", "sigma"), dist_ij)
+        elif orb_i == "x" and orb_j == "x":
+            element = x_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
+            (1 - x_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij) 
+        elif orb_i == "x" and orb_j == "y":
+            element = x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) - \
+                      x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
+        elif orb_i == "x" and orb_j == "z":
+            element =  x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) - \
+                      x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
+        return element
 
 
     def calc_matrix_elements(self, dist_cut_off):
@@ -88,6 +100,6 @@ class H_Matrix(Atomic_Coordinates):
             loop_counter += 1
 
 if __name__ == "__main__":
-    inst = H_Matrix("CH4.coord")    
-    inst.calc_matrix_elements(0.1) :W
+    inst = HamiltonianMatrix("CH4.coord")    
+    inst.calc_matrix_elements(0.1)
 
