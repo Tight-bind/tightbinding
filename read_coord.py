@@ -19,7 +19,7 @@ class AtomicCoordinates(object):
     performing some manipulations on the vectors.
     """    
     def __init__(self, coord_file, species_dict={}, coords_dict={},
-                 orbital_dict={}):
+                 orbital_dict={}, atom_id_dict={}):
         self.raw_atom_data = np.genfromtxt(coord_file,
                                            dtype=['U15', '<f8', '<f8', '<f8'],
                                            names=('Species', 'x_coord',
@@ -29,6 +29,7 @@ class AtomicCoordinates(object):
         self.coords_dict = coords_dict
         self.orbital_dict = orbital_dict
         self.species_dict = species_dict
+        self.atom_id_dict = atom_id_dict
 
     def generate_dict(self):
         """
@@ -48,13 +49,11 @@ class AtomicCoordinates(object):
             searchfile = open("species_log.db", "r")
             for line in searchfile:
                 if atom_dat[0] in line:
-                    
-                    for orbital in orbital_order[0:int(line[2:])]:
-                        self.orbital_dict.update({orbital_no:
-                                                 (atom_dat[0],
-                                                  idx,
-                                                  orbital)})
+                    for orbital in orbital_order[:int(line[2:])]:
+                        self.orbital_dict.update({orbital_no: orbital})
+                        self.atom_id_dict.update({orbital_no: idx})
                         orbital_no += 1
+        print(self.atom_id_dict)
         print(self.orbital_dict)
 
     def show_atomic_data(self):
