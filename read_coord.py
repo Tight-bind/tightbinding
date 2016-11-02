@@ -53,7 +53,8 @@ class AtomicCoordinates(object):
                         self.orbital_dict.update({orbital_no: orbital})
                         self.atom_id_dict.update({orbital_no: idx})
                         orbital_no += 1
-
+        print(self.orbital_dict)
+        print(self.atom_id_dict)
     def show_atomic_data(self):
         """
         Show the read-in atomic data on screen.

@@ -100,7 +100,7 @@ class HamiltonianMatrix(AtomicCoordinates):
     def calc_matrix_elements(self, show_matrix, dist_cut_off):
         for i, orb_i in self.orbital_dict.items():
             for j, orb_j in self.orbital_dict.items():
-                if orb_i == orb_j and self.atom_id_dict[i] == self.atom_id_dict[j]:
+                if i == j:
                     element = on_site_energy_table(self.species_dict[
                                                         self.atom_id_dict[i]], orb_i)
                 elif orb_i != orb_j and self.atom_id_dict[i] == self.atom_id_dict[j]:
@@ -110,11 +110,14 @@ class HamiltonianMatrix(AtomicCoordinates):
                     r_j = self.coords_dict[self.atom_id_dict[j]]
                     r_ij = r_i - r_j
                     dist_ij = np.sqrt(np.dot(r_ij, r_ij))
-                    x_dir_cos = r_ij[0]/dist_ij
-                    y_dir_cos = r_ij[1]/dist_ij
-                    z_dir_cos = r_ij[2]/dist_ij
-                    element = slater_koster_table(orb_i, orb_j, x_dir_cos,
-                                                  y_dir_cos, x_dir_cos, dist_ij)
+                    if dist_ij < dist_cut_off:
+                        element = 0
+                    else:
+                        x_dir_cos = r_ij[0]/dist_ij
+                        y_dir_cos = r_ij[1]/dist_ij
+                        z_dir_cos = r_ij[2]/dist_ij
+                        element = slater_koster_table(orb_i, orb_j, x_dir_cos,
+                                                      y_dir_cos, x_dir_cos, dist_ij)
                 self.H[i, j] = element
         if show_matrix:
             print("\n****** Hamiltonian Matrix ******\n")   
@@ -126,13 +129,13 @@ class HamiltonianMatrix(AtomicCoordinates):
         eigen_energies, eigen_vectors = np.linalg.eig(self.H)
         print("\n****** Eigenvalues and Eigenvectors ******* \n")
         for idx, eigen_energy in enumerate(eigen_energies):
-            print("\n\nSolution " + str(idx + 1))
-            print("Eigenenergy:" + str(eigen_energy) + " eV")
+            print("\nSolution " + str(idx + 1))
+            print("Eigenenergy: " + str(eigen_energy) + " eV")
             print("Eigenvector: " + str(eigen_vectors[:,idx]))
         
                 
 if __name__ == "__main__":
-    inst = HamiltonianMatrix("CH4.coord")    
-    inst.calc_matrix_elements(True, 0.1)
-    inst.solve_H()
+    CH4_matrix = HamiltonianMatrix("CH4.coord")    
+    CH4_matrix.calc_matrix_elements(True, 1)
+    CH4_matrix.solve_H()
 
