@@ -10,9 +10,6 @@ Description: Build the tight binding hamiltonian using the
 Slater-Koster tables.
 """
 
-mass_electron = 9.10938356e-31 #kg
-reduc_pl_const = 1.054571800e-34
-
 
 def eta_coeff(l_i, l_j, bond_type):
     """
@@ -37,34 +34,53 @@ def V_coeff(eta, internuclear_distance):
     """
     float: eta: Returned from the function eta_coeff (dict look
            up from solid state table.)
-    3-tuple: r_ij: the x, y, z coordinates for 
+    float: internuclear_distance: enters function in angstroms, V in eV 
     """
-    V = (eta * reduc_pl_const ** 2)/(mass_electron * internuclear_distance ** 2)
+    V = 7.619964162248216 * eta * (1/internuclear_distance) ** 2
     return V
 
 
 def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
+    """
+    Calculates the interatomic matrix elements using the Slater-Koster table.
+    string: orb_i, orb_j: ss, px, py, pz...
+    remaining arguments are float64.
+    """
     if orb_i == "ss" and orb_j == "ss":
         element = V_coeff(eta_coeff("s", "s", "sigma"), dist_ij)
-    elif orb_i == "ss" and orb_j == "px":
+    elif (orb_i == "ss" and orb_j == "px") or (orb_i == "px" and orb_j == "ss"):
         element = x_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij)
     elif orb_i == "px" and orb_j == "px":
         element = x_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
         (1 - x_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
-    elif orb_i == "px" and orb_j == "py":
+    elif (orb_i == "px" and orb_j == "py") or (orb_i == "py" and orb_j == "px"):
         element = x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) - \
                    x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
-    elif orb_i == "px" and orb_j == "pz":
+    elif (orb_i == "px" and orb_j == "pz") or (orb_i == "pz" and orb_j == "px"):
         element =  x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) - \
                       x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
+    elif (orb_i == "py" and orb_j == "ss") or (orb_i == "ss" and orb_j == "py"):
+        element = 0
+    elif (orb_i == "pz" and orb_j == "ss") or (orb_i == "ss" and orb_j == "pz"):
+        element = 0
+    return element
+
 
 def on_site_energy_table(species, orbital):
+    """
+    Some onsite energies for seleted atomic species.
+    string: species: elemental symbol for the species
+    string: orbital: px, py ss...
+    """
     if species == 'C':
-        if orbital == 'px' or orbital == 'py' or orbital == 'pz' or orbital == 'ss':
-            energy = 0
+        if orbital == 'px' or orbital == 'py' or orbital == 'pz':
+            energy = -8.97
+        elif orbital == "ss":
+            energy = -17.52
     elif species == 'H':
-        energy = 1
+        energy = -13.61
     return energy
+
 
 class HamiltonianMatrix(AtomicCoordinates):
     """
@@ -81,22 +97,42 @@ class HamiltonianMatrix(AtomicCoordinates):
         self.H = np.empty([total_orbitals, total_orbitals])
 
 
-    def calc_matrix_elements(self, dist_cut_off):
+    def calc_matrix_elements(self, show_matrix, dist_cut_off):
         for i, orb_i in self.orbital_dict.items():
             for j, orb_j in self.orbital_dict.items():
                 if orb_i == orb_j and self.atom_id_dict[i] == self.atom_id_dict[j]:
                     element = on_site_energy_table(self.species_dict[
                                                         self.atom_id_dict[i]], orb_i)
-                elif orb_i == orb_j and self.atom_id_dict[i] != self.atom_id_dict[j]:
+                elif orb_i != orb_j and self.atom_id_dict[i] == self.atom_id_dict[j]:
                     element = 0
                 else:
-                    element = 99
+                    r_i = self.coords_dict[self.atom_id_dict[i]]
+                    r_j = self.coords_dict[self.atom_id_dict[j]]
+                    r_ij = r_i - r_j
+                    dist_ij = np.sqrt(np.dot(r_ij, r_ij))
+                    x_dir_cos = r_ij[0]/dist_ij
+                    y_dir_cos = r_ij[1]/dist_ij
+                    z_dir_cos = r_ij[2]/dist_ij
+                    element = slater_koster_table(orb_i, orb_j, x_dir_cos,
+                                                  y_dir_cos, x_dir_cos, dist_ij)
                 self.H[i, j] = element
-             
-        print(self.H)
+        if show_matrix:
+            print("\n****** Hamiltonian Matrix ******\n")   
+            np.set_printoptions(precision=2)
+            print(self.H)
 
+    
+    def solve_H(self):
+        eigen_energies, eigen_vectors = np.linalg.eig(self.H)
+        print("\n****** Eigenvalues and Eigenvectors ******* \n")
+        for idx, eigen_energy in enumerate(eigen_energies):
+            print("\n\nSolution " + str(idx + 1))
+            print("Eigenenergy:" + str(eigen_energy) + " eV")
+            print("Eigenvector: " + str(eigen_vectors[:,idx]))
+        
                 
 if __name__ == "__main__":
     inst = HamiltonianMatrix("CH4.coord")    
-    inst.calc_matrix_elements(0.1)
+    inst.calc_matrix_elements(True, 0.1)
+    inst.solve_H()
 

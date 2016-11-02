@@ -53,8 +53,6 @@ class AtomicCoordinates(object):
                         self.orbital_dict.update({orbital_no: orbital})
                         self.atom_id_dict.update({orbital_no: idx})
                         orbital_no += 1
-        print(self.atom_id_dict)
-        print(self.orbital_dict)
 
     def show_atomic_data(self):
         """
@@ -68,5 +66,5 @@ class AtomicCoordinates(object):
 if __name__ == "__main__":
     data = AtomicCoordinates("CH4.coord")
     data.generate_dict()
-    data.show_atomic_data()
+    #data.show_atomic_data()
 
