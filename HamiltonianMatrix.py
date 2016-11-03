@@ -48,21 +48,39 @@ def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
     """
     if orb_i == "ss" and orb_j == "ss":
         element = V_coeff(eta_coeff("s", "s", "sigma"), dist_ij)
+
     elif (orb_i == "ss" and orb_j == "px") or (orb_i == "px" and orb_j == "ss"):
         element = x_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij)
+
+    elif (orb_i == "ss" and orb_j == "py") or (orb_i == "py" and orb_j == "ss"):
+        element = y_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij)
+
+    elif (orb_i == "ss" and orb_j == "pz") or (orb_i == "pz" and orb_j == "ss"):
+        element = z_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij)
+
     elif orb_i == "px" and orb_j == "px":
         element = x_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
         (1 - x_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
+
+    elif orb_i == "pz" and orb_j == "pz":
+        element = z_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
+        (1 - z_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
+
+    elif orb_i == "py" and orb_j == "py":
+        element = y_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
+        (1 - y_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
+
     elif (orb_i == "px" and orb_j == "py") or (orb_i == "py" and orb_j == "px"):
-        element = x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) - \
-                   x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
+        element = (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) - \
+                  (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij))
+
     elif (orb_i == "px" and orb_j == "pz") or (orb_i == "pz" and orb_j == "px"):
-        element =  x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) - \
-                      x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)
-    elif (orb_i == "py" and orb_j == "ss") or (orb_i == "ss" and orb_j == "py"):
-        element = 0
-    elif (orb_i == "pz" and orb_j == "ss") or (orb_i == "ss" and orb_j == "pz"):
-        element = 0
+        element = (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) - \
+                  (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij))
+
+    elif (orb_i == "pz" and orb_j == "py") or (orb_i == "py" and orb_j == "pz"):
+        element = (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) - \
+                  (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij))
     return element
 
 
@@ -110,7 +128,7 @@ class HamiltonianMatrix(AtomicCoordinates):
                     r_j = self.coords_dict[self.atom_id_dict[j]]
                     r_ij = r_i - r_j
                     dist_ij = np.sqrt(np.dot(r_ij, r_ij))
-                    if dist_ij < dist_cut_off:
+                    if dist_ij > dist_cut_off:
                         element = 0
                     else:
                         x_dir_cos = r_ij[0]/dist_ij
@@ -122,7 +140,7 @@ class HamiltonianMatrix(AtomicCoordinates):
         if show_matrix:
             print("\n****** Hamiltonian Matrix ******\n")   
             np.set_printoptions(precision=2)
-            print(self.H)
+            print(np.matrix(self.H))
 
     
     def solve_H(self):
@@ -136,6 +154,6 @@ class HamiltonianMatrix(AtomicCoordinates):
                 
 if __name__ == "__main__":
     CH4_matrix = HamiltonianMatrix("CH4.coord")    
-    CH4_matrix.calc_matrix_elements(True, 1)
+    CH4_matrix.calc_matrix_elements(True, 1.5) 
     CH4_matrix.solve_H()
 
