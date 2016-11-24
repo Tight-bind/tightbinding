@@ -1,3 +1,5 @@
+import numpy as np
+
 """
 Author: Jack Baker
 
@@ -107,3 +109,27 @@ def on_site_energy_table(species, orbital):
     elif species == 'H':
         energy = -13.61
     return energy
+
+# L = simulation cell dimension
+periodic_image_dict = {0:lambda L: np.array([L, 0, 0]),
+                     1: lambda L:  np.array([-L, 0, 0]),
+                     2: lambda L:  np.array([0, L, 0]),
+                     3: lambda L:  np.array([0, -L, 0]),
+                     4: lambda L:  np.array([0, 0, L]),
+                     5: lambda L:  np.array([0, 0, -L]),
+                     6: lambda L: 0 #image in simulation cell
+                    }
+def image(periodic_image_index, simulation_cell_dimension):
+    """
+    Reuturns the correct vector to to add to the vector r_ij
+    to get the vector r_ij' to the periodic image
+    """
+    return periodic_image_dict.get(periodic_image_index)(simulation_cell_dimension)
+
+
+def bloch_phase_factor(k_point, r_ij):
+    """
+    The Bloch plane wave phase factor.
+    """
+    return np.exp(1J*np.dot(k_point, r_ij))
+
