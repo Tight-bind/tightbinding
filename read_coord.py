@@ -31,30 +31,39 @@ class AtomicCoordinates(object):
         self.species_dict = species_dict
         self.atom_id_dict = atom_id_dict
 
-    def generate_dict(self):
+    def generate_dict(self, isfractionalcoord=False, simcelldimensions=None):
         """
         Inserts the atomic coordinates and species into two dictiionaires, 
         each with a UID.
         """
         orbital_no = 0
         for idx, atom_dat in enumerate(self.raw_atom_data):
-            self.coords_dict.update({idx: np.array([atom_dat[1],
-                                                    atom_dat[2],
-                                                    atom_dat[3]
-                                                   ]
-                                                  )
-                                   }
-                                  )
-            self.species_dict.update({idx: atom_dat[0]})
+            if isfractionalcoord:
+                self.coords_dict.update({idx: np.array([atom_dat[1]*simcelldimensions[0],
+                                                        atom_dat[2]*simcelldimensions[1],
+                                                        atom_dat[3]*simcelldimensions[2]
+                                                       ]
+                                                      )
+                                         }
+                                      )
+            else:
+                self.coords_dict.update({idx: np.array([atom_dat[1],
+                                                        atom_dat[2],
+                                                        atom_dat[3]
+                                                       ]
+                                                      )
+                                       }
+                                     )
+            species = atom_dat[0]
+            self.species_dict.update({idx: species})
             searchfile = open("species_log.db", "r")
             for line in searchfile:
-                if atom_dat[0] in line:
+                if species in line:
                     for orbital in orbital_order[:int(line[2:])]:
                         self.orbital_dict.update({orbital_no: orbital})
                         self.atom_id_dict.update({orbital_no: idx})
                         orbital_no += 1
-        print(self.orbital_dict)
-        print(self.atom_id_dict)
+
     def show_atomic_data(self):
         """
         Show the read-in atomic data on screen.
@@ -65,7 +74,7 @@ class AtomicCoordinates(object):
                   + ", xyz coordinates: " + str(self.coords_dict[key]))
 
 if __name__ == "__main__":
-    data = AtomicCoordinates("CH4.coord")
-    data.generate_dict()
-    #data.show_atomic_data()
+    data = AtomicCoordinates("bulkSi.coord")
+    data.generate_dict(isfractionalcoord=True, simcelldimensions=np.array([5.431, 5.431, 5.431]))
+    data.show_atomic_data()
 

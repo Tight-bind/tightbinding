@@ -108,6 +108,11 @@ def on_site_energy_table(species, orbital):
             energy = -17.52
     elif species == 'H':
         energy = -13.61
+    elif species == 'Si':
+        if orbital == 'px' or orbital == 'py' or orbital == 'pz':
+            energy = -6.52
+        elif orbital == "ss":
+            energy = -13.55
     return energy
 
 # L = simulation cell dimension
