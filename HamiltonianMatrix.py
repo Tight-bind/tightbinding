@@ -18,7 +18,7 @@ class HamiltonianMatrix(AtomicCoordinates):
     the tight binding Hamiltonian matrix.
     """
 
-    def __init__(self, coord_file, isfractionalcoord=False, simcelldimensions=None,
+    def __init__(self, coord_file, kpts=[], isfractionalcoord=False, simcelldimensions=None,
                  species_dict={}, coords_dict={}, orbital_dict={},
                  atom_id_dict={}):
         AtomicCoordinates.__init__(self, coord_file, species_dict,
@@ -26,6 +26,7 @@ class HamiltonianMatrix(AtomicCoordinates):
         self.simcelldimensions = simcelldimensions
         AtomicCoordinates.generate_dict(self, isfractionalcoord, simcelldimensions)
         total_orbitals = len(orbital_dict)
+        self.kpts = kpts
         self.H = np.empty([total_orbitals, total_orbitals])
 
 
@@ -92,6 +93,7 @@ class HamiltonianMatrix(AtomicCoordinates):
                             total_element += element*bloch_phase_factor(k_point, r_ij)
                 self.H[i, j] = total_element
 
+
     def show_matrix(self):
         print("\n****** Hamiltonian Matrix ******\n")
         np.set_printoptions(precision=2) 
@@ -103,55 +105,41 @@ class HamiltonianMatrix(AtomicCoordinates):
         #print(eigen_energies.real)
         #return eigen_energies.real
 
-        print("\n****** Eigenvalues and Eigenvectors ******* \n")
-        for idx, eigen_energy in enumerate(eigen_energies):
-            print("\nSolution " + str(idx + 1))
-            print("Eigenenergy: " + str(eigen_energy) + " eV")
-            print("Eigenvector: " + str(eigen_vectors[:,idx]))
-        return eigen_energies
+        #print("\n****** Eigenvalues and Eigenvectors ******* \n")
+        #for idx, eigen_energy in enumerate(eigen_energies):
+        #    print("\nSolution " + str(idx + 1))
+        #    print("Eigenenergy: " + str(eigen_energy) + " eV")
+        #    print("Eigenvector: " + str(eigen_vectors[:,idx]))
+        return eigen_energies.real
+
+    def calc_bands(self, dist_cut_off, N_images):
+        e_array = [[] for i in range(len(self.orbital_dict))]
+        #self.kpts = np.genfromtxt("kpoints.in", skip_header=2)
+        self.kpts = [np.pi/5.431*np.array([kx, kx, 0]) for
+                     kx in np.linspace(0, 0.5, 50)]
+        for kpt in self.kpts:
+            self.calc_periodic_elements(dist_cut_off, N_images, kpt)
+            energies = self.solve_H()
+            for i in range(len(self.orbital_dict)):
+                e_array[i].append(abs(energies[i]))
+        return e_array 
+
+
+    def matrix_to_csv(self):
+       np.savetxt("Hamiltonian_Matrix.csv", self.H,
+                   fmt='%.3f', delimiter=",") 
+
+    def check_symmetry(self):
+        self.H = self.H - self.H.T
+
 
 if __name__ == "__main__":
-    CH4_matrix = HamiltonianMatrix("bulkSi.coord", isfractionalcoord=True, simcelldimensions=np.array([5.431, 5.431, 5.431]))
-    #CH4_matrix.calc_molecule_elements(1.5)
-    #CH4_matrix.solve_H()
-    #CH4_matrix.show_matrix()
-    CH4_matrix.calc_periodic_elements(5, 2, np.array([0, 0, 0]))
-    #CH4_matrix.show_matrix()
-    CH4_matrix.solve_H()
-    #periodic_CH4 = HamiltonianMatrix("solid_carbon.coord")
-    #periodic_CH4.calc_periodic_elements(5, 2, 1, np.array([np.pi, 0, 0]))
-    #periodic_CH4.show_matrix()
-    """
-    energy1 = []
-    energy2 = []
-    energy3 = []
-    energy4 = []
-    energy5 = []
-    energy6 = []
-    energy7 = []
-    energy8 = []
-    kpts = np.linspace(-np.pi/20, np.pi/20, 50)
-    for i in kpts:
-        CH4_matrix.calc_periodic_elements(15, 20, 1, np.array([i, 0, 0]))
-        energies = CH4_matrix.solve_H()
-        energy1.append(energies[0])
-        energy2.append(energies[1])
-        #energy3.append(energies[2])
-        #energy4.append(energies[3])
-        #energy5.append(energies[4])
-        #energy6.append(energies[5])
-        #energy7.append(energies[6])
-        #energy8.append(energies[7])
-    for idx, en in enumerate(energy1):
-        print(str(en) + " " + str(kpts[idx]) )
-    #import matplotlib.pyplot as plt
-    #plt.plot(energy1)
-    #plt.plot(energy2)
-    #plt.plot(energy3)
-    #plt.plot(energy4)
-    #plt.plot(energy5)
-    #plt.plot(energy6)
-    #plt.plot(energy7)
-    #plt.plot(energy8)
-    #plt.show()
-    """
+    bulk_si = HamiltonianMatrix("bulkSi.coord", isfractionalcoord=True,
+                                simcelldimensions=np.array([5.431, 5.431, 5.431]))
+    eigenenergies= bulk_si.calc_bands(dist_cut_off=11, N_images=2)
+    import matplotlib.pyplot as plt
+    for i in range(32):
+        plt.plot(eigenenergies[i])
+    plt.show()
+
+
