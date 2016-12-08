@@ -100,23 +100,23 @@ class HamiltonianMatrix(AtomicCoordinates):
 
 
     def solve_H(self):
-        eigen_energies, eigen_vectors = np.linalg.eig(self.H)
+        eigen_energies, eigen_vectors = np.linalg.eigh(self.H)
         #print(eigen_energies.real)
         #return eigen_energies.real
 
-        #print("\n****** Eigenvalues and Eigenvectors ******* \n")
+        print("\nSolving\n")
         for idx, eigen_energy in enumerate(eigen_energies):
             if abs(eigen_energy.imag) > 1e-12:
                 print("Warning, imaginary eigenvalue!")
-            #print("\nSolution " + str(idx + 1))
-            #print("Eigenenergy: " + str(eigen_energy) + " eV")
-            #print("Eigenvector: " + str(eigen_vectors[:,idx]))
+        #    print("\nSolution " + str(idx + 1))
+        #    print("Eigenenergy: " + str(eigen_energy) + " eV")
+        #    print("Eigenvector: " + str(eigen_vectors[:,idx]))
         return eigen_energies.real
 
     def calc_bands(self, dist_cut_off, N_images):
         e_array = [[] for i in range(len(self.orbital_dict))]
         #self.kpts = np.genfromtxt("kpoints.in", skip_header=2)
-        self.kpts = [np.array([kx, kx, 0]) for
+        self.kpts = [np.pi/5.431*np.array([kx, kx, 0]) for
                      kx in np.linspace(0, 0.5, 50)]
         for kpt in self.kpts:
             self.calc_periodic_elements(dist_cut_off, N_images, kpt)
@@ -124,7 +124,7 @@ class HamiltonianMatrix(AtomicCoordinates):
             energies = self.solve_H()
             for i in range(len(self.orbital_dict)):
                 e_array[i].append(energies[i])
-        return e_arrays
+        return e_array
 
 
     def matrix_to_csv(self, file_name):
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     bulk_si = HamiltonianMatrix("bulkSi.coord", isfractionalcoord=True,
                                 simcelldimensions=np.array([5.431, 5.431, 5.431]))
     #bulk_si.calc_molecule_elements(dist_cut_off=5)
-    #bulk_si.calc_periodic_elements(dist_cut_off=11, N_images=2, k_point=np.array([0.2, 0.1, 0.9]))
+    #bulk_si.calc_periodic_elements(dist_cut_off=2.7, N_images=2, k_point=np.array([0, 0, 0]))
     #bulk_si.solve_H()
     #bulk_si.matrix_to_csv("beforesym.csv")
     #bulk_si.show_matrix()
@@ -152,11 +152,11 @@ if __name__ == "__main__":
     #bulk_si.matrix_to_csv("aftersym.csv")
     #bulk_si.show_matrix()
     #bulk_si.calc_periodic_elements(dist_cut_off=11, N_images=2, k_point=np.array([0, 0, 0]))
-    #eigenenergies = bulk_si.calc_bands(dist_cut_off=5, N_images=1)
+    eigenenergies = bulk_si.calc_bands(dist_cut_off=11, N_images=2)
     #bulk_si.calc_molecule_elements(dist_cut_off=11)
     #bulk_si.matrix_to_csv()
-    eigenenergies= bulk_si.calc_bands(dist_cut_off=11, N_images=2)
+    #eigenenergies= bulk_si.calc_bands(dist_cut_off=11, N_images=2)
     import matplotlib.pyplot as plt
-    for i in range(8):
+    for i in range(32):
         plt.plot(eigenenergies[i])
     plt.show()
