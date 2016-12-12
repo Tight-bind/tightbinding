@@ -16,11 +16,17 @@ def eta_coeff(l_i, l_j, bond_type):
     string: b
     """
     eta_string = l_i + "_" + l_j + "_" + bond_type
-    eta_dict = {"s_s_sigma": -1.40,
-                "s_p_sigma": 1.84,
-                "p_s_sigma": 1.84,
-                "p_p_sigma": 3.24,
-                "p_p_pi": -0.81  }
+    #eta_dict = {"s_s_sigma": -1.40,
+    #            "s_p_sigma": 1.84,
+    #            "p_s_sigma": 1.84,
+    #            "p_p_sigma": 3.24,
+    #            "p_p_pi": -0.81  }
+    # Dave's parameters
+    eta_dict = {"s_s_sigma": -1.938,
+                "s_p_sigma": 1.745,
+                "p_s_sigma": 1.745,
+                "p_p_sigma": 3.050,
+                "p_p_pi": -1.075}
     if eta_string not in eta_dict:
         print("Unknown bond orbital combination")
     else:
@@ -110,17 +116,13 @@ def on_site_energy_table(species, orbital):
         energy = -13.61
     elif species == 'Si':
         if orbital == 'px' or orbital == 'py' or orbital == 'pz':
-            energy = -6.52
+            #energy = -6.52
+            energy = -5.75 # Daves
         elif orbital == "ss":
-            energy = -13.55
+            #energy = -13.55
+            energy = -12.2 # Daves
     return energy
 
-
-def image(periodic_image_index, simulation_cell_dimension):
-    """
-    Reuturns the correct vector to to add to the vector r_ij
-    to get the vector r_ij' to the periodic image
-    """
 
 
 def bloch_phase_factor(k_point, r_ij):

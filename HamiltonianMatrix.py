@@ -1,6 +1,6 @@
 import numpy as np
 from read_coord import AtomicCoordinates
-from slater_koster import on_site_energy_table, slater_koster_table, image, bloch_phase_factor
+from slater_koster import on_site_energy_table, slater_koster_table, bloch_phase_factor
 
 """
 Author: Jack Baker
@@ -116,8 +116,21 @@ class HamiltonianMatrix(AtomicCoordinates):
     def calc_bands(self, dist_cut_off, N_images):
         e_array = [[] for i in range(len(self.orbital_dict))]
         #self.kpts = np.genfromtxt("kpoints.in", skip_header=2)
-        self.kpts = [np.pi/5.431*np.array([kx, kx, 0]) for
-                     kx in np.linspace(0, 0.5, 50)]
+        # W => G
+        self.kpts = [((2*np.pi)/5.431)*np.array([kx, ky, 0]) for
+                     kx, ky in zip(np.linspace(0.5, 0, 50), np.linspace(1, 0, 50))]
+        # G => X
+        self.kpts.extend([((2*np.pi)/5.431)*np.array([0, ky, 0]) for
+                     ky in np.linspace(0, 1, 50)])
+        # X => W
+        self.kpts.extend([((2*np.pi)/5.431)*np.array([kx, 1, 0]) for
+                     kx in np.linspace(0, 0.5, 50)])
+        # W => L
+        self.kpts.extend([((2*np.pi)/5.431)*np.array([0.5, ky, kz]) for
+                     ky, kz in zip(np.linspace(1, 0.5, 50), np.linspace(0, 0.5, 50))])
+        # L => G 
+        self.kpts.extend([((2*np.pi)/5.431)*np.array([kx, kx, kx]) for
+                     kx in np.linspace(0.5, 0, 50)])
         for kpt in self.kpts:
             self.calc_periodic_elements(dist_cut_off, N_images, kpt)
             self.check_symmetry()
@@ -152,7 +165,7 @@ if __name__ == "__main__":
     #bulk_si.matrix_to_csv("aftersym.csv")
     #bulk_si.show_matrix()
     #bulk_si.calc_periodic_elements(dist_cut_off=11, N_images=2, k_point=np.array([0, 0, 0]))
-    eigenenergies = bulk_si.calc_bands(dist_cut_off=11, N_images=2)
+    eigenenergies = bulk_si.calc_bands(dist_cut_off=3, N_images=2)
     #bulk_si.calc_molecule_elements(dist_cut_off=11)
     #bulk_si.matrix_to_csv()
     #eigenenergies= bulk_si.calc_bands(dist_cut_off=11, N_images=2)
