@@ -1,4 +1,5 @@
 import numpy as np
+from cmath import exp
 
 """
 Author: Jack Baker
@@ -40,6 +41,8 @@ def V_coeff(eta, internuclear_distance):
            up from solid state table.)
     float: internuclear_distance: enters function in angstroms, V in eV
     """
+    # Daves suggestion for bulk -> distance dependecne should be 1
+    #V = 7.619964162248216*eta
     V = 7.619964162248216 * eta * (1/internuclear_distance) ** 2
     return V
 
@@ -129,4 +132,4 @@ def bloch_phase_factor(k_point, r_ij):
     """
     The Bloch plane wave phase factor.
     """
-    return np.exp(1J*np.dot(k_point, r_ij))
+    return exp(1J*(k_point[0]*r_ij[0] + k_point[1]*r_ij[1] + k_point[2]*r_ij[2]))
