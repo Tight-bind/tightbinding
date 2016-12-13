@@ -165,7 +165,7 @@ if __name__ == "__main__":
     #bulk_si.matrix_to_csv("aftersym.csv")
     #bulk_si.show_matrix()
     #bulk_si.calc_periodic_elements(dist_cut_off=11, N_images=2, k_point=np.array([0, 0, 0]))
-    eigenenergies = bulk_si.calc_bands(dist_cut_off=3, N_images=2)
+    eigenenergies = bulk_si.calc_bands(dist_cut_off=5, N_images=2)
     #bulk_si.calc_molecule_elements(dist_cut_off=11)
     #bulk_si.matrix_to_csv()
     #eigenenergies= bulk_si.calc_bands(dist_cut_off=11, N_images=2)
