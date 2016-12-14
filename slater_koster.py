@@ -6,44 +6,46 @@ Author: Jack Baker
 
 Date: 15/11/2016
 
-Description: Some free floating functions and a dictinaory of lambda fucntions used in
-the implementation of the Slater-Koster tables.
+Description: Some free floating functions and a dictinaory of lambda fucntions
+used in the implementation of the Slater-Koster tables.
 """
+
+#eta_dict = {"s_s_sigma": -1.40,
+#            "s_p_sigma": 1.84,
+#            "p_s_sigma": 1.84,
+#            "p_p_sigma": 3.24,
+#            "p_p_pi": -0.81  }
+# Dave's parameters
+eta_dict = {"s_s_sigma": -1.938,
+            "s_p_sigma": 1.745,
+            "p_s_sigma": 1.745,
+            "p_p_sigma": 3.050,
+            "p_p_pi": -1.075}
 
 def eta_coeff(l_i, l_j, bond_type):
     """
-    string: l_i: The ith atomic orbital angular momentum Q. no (s, p, d etc.)
-    string: l_j: The jth atomic orbital angular momentum Q. no (s, p, d etc.)
-    string: b
+    Retrieves the correct eta coefficient from eta_dict.
+    input: l_i => Angular momentum state for the ith orbital. String.
+    input: l_j => Angular momentum state for the jth orbital. String.
+    input: bond_type => The type of bond (sigma, pi...) from the orbital overlap.
+    String.
+    returns: eta_dict[eta_string] => the correct eta coefficient. Float64
     """
-    eta_string = l_i + "_" + l_j + "_" + bond_type
-    #eta_dict = {"s_s_sigma": -1.40,
-    #            "s_p_sigma": 1.84,
-    #            "p_s_sigma": 1.84,
-    #            "p_p_sigma": 3.24,
-    #            "p_p_pi": -0.81  }
-    # Dave's parameters
-    eta_dict = {"s_s_sigma": -1.938,
-                "s_p_sigma": 1.745,
-                "p_s_sigma": 1.745,
-                "p_p_sigma": 3.050,
-                "p_p_pi": -1.075}
-    if eta_string not in eta_dict:
-        print("Unknown bond orbital combination")
-    else:
-        eta = eta_dict.get(eta_string)
-        return eta
+    return eta_dict["_".join([l_i, l_j, bond_type])]
 
 
 def V_coeff(eta, internuclear_distance):
     """
-    float: eta: Returned from the function eta_coeff (dict look
-           up from solid state table.)
-    float: internuclear_distance: enters function in angstroms, V in eV
+    input: eta => Returned from the function eta_coeff (dict look
+                  up from eta_dict.). Float64.
+    input: internuclear_distance => Distance separating centers of nuclei.
+                                    enters function in angstroms. Float64.
+    returns: V => The bond coefficient including the distance dependence in eV.
+                  Float.
     """
     # Daves suggestion for bulk -> distance dependecne should be 1
     #V = 7.619964162248216*eta
-    V = 7.619964162248216 * eta * (1/internuclear_distance) ** 2
+    V = 7.619964162248216 * eta * (1/(internuclear_distance*internuclear_distance))
     return V
 
 
@@ -96,16 +98,13 @@ def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
     string: orb_i, orb_j: ss, px, py, pz...
     remaining arguments are float64.
     """
-    orb_string = orb_i + orb_j
-    if orb_string not in orb_dict:
-        print("Orbital overlap %s not recognised" %(orb_string))
-    else:
-        element = orb_dict.get(orb_string)(x_dir_cos, y_dir_cos, z_dir_cos, dist_ij)
-    return element
+    return orb_dict["".join([orb_i, orb_j])](x_dir_cos, y_dir_cos,
+                                             z_dir_cos, dist_ij)
 
 
 def on_site_energy_table(species, orbital):
     """
+    MAKE THIS INTO A DICT
     Some onsite energies for seleted atomic species.
     string: species: elemental symbol for the species
     string: orbital: px, py ss...
@@ -125,7 +124,6 @@ def on_site_energy_table(species, orbital):
             #energy = -13.55
             energy = -12.2 # Daves
     return energy
-
 
 
 def bloch_phase_factor(k_point, r_ij):
