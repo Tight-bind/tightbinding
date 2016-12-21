@@ -50,47 +50,49 @@ def V_coeff(eta, internuclear_distance):
 
 
 
-orb_dict = {"ssss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    V_coeff(eta_coeff("s", "s", "sigma"), dist_ij),
-            "sspx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    x_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
-            "pxss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    -x_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
-            "sspy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    y_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
-            "pyss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    -y_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
-            "sspz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    z_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
-            "pzss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    -z_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
-            "pxpx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    x_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
-                    (1 - x_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij),
-            "pzpz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    z_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
-                    (1 - z_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij),
-            "pypy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    y_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
-                    (1 - y_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij),
-            "pxpy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
-                    (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
-            "pypx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
-                    (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
-            "pypz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
-                    (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
-            "pzpy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
-                    (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
-            "pzpx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) - \
-                    (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
-            "pxpz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
-                    (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) - \
-                    (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij))}
+orb_dict = {
+"ssss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        V_coeff(eta_coeff("s", "s", "sigma"), dist_ij),
+"sspx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        x_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
+"pxss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        -x_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
+"sspy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        y_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
+"pyss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        -y_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
+"sspz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        z_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
+"pzss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        -z_dir_cos * V_coeff(eta_coeff("s", "p", "sigma"), dist_ij),
+"pxpx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        x_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
+        (1 - x_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij),
+"pzpz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        z_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
+        (1 - z_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij),
+"pypy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        y_dir_cos ** 2 * V_coeff(eta_coeff("p", "p", "sigma"), dist_ij) +\
+        (1 - y_dir_cos ** 2) * V_coeff(eta_coeff("p", "p", "pi"), dist_ij),
+"pxpy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
+        (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
+"pypx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
+        (x_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
+"pypz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
+        (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
+"pzpy": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) -\
+        (z_dir_cos * y_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
+"pzpx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) - \
+        (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij)),
+"pxpz": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
+        (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "sigma"), dist_ij)) - \
+        (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij))
+}
 
 def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
     """
@@ -102,28 +104,22 @@ def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
                                              z_dir_cos, dist_ij)
 
 
+on_site_dict = {"Cp": -8.97,
+                "Cs": -17.52,
+                "Hs": -13.61,
+                "Sip": -5.75, #-6.52
+                "Sis": -12.2}
+
 def on_site_energy_table(species, orbital):
     """
-    MAKE THIS INTO A DICT
-    Some onsite energies for seleted atomic species.
-    string: species: elemental symbol for the species
-    string: orbital: px, py ss...
+    Gets the on site element from the on_site_dict.
+    input: species => the element the orbitak belongs to. String.
+    input: orbital => the text representations of the magnetic quantum number.
+                      i.e, py, pz... String
+    returns: on_site_dict["".join([species, orbital[0:1]])] => The correct on
+             site element from dict look up. Float64.
     """
-    if species == 'C':
-        if orbital == 'px' or orbital == 'py' or orbital == 'pz':
-            energy = -8.97
-        elif orbital == "ss":
-            energy = -17.52
-    elif species == 'H':
-        energy = -13.61
-    elif species == 'Si':
-        if orbital == 'px' or orbital == 'py' or orbital == 'pz':
-            #energy = -6.52
-            energy = -5.75 # Daves
-        elif orbital == "ss":
-            #energy = -13.55
-            energy = -12.2 # Daves
-    return energy
+    return on_site_dict["".join([species, orbital[0:1]])]
 
 
 def bloch_phase_factor(k_point, r_ij):

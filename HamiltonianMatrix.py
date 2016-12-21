@@ -125,7 +125,7 @@ class HamiltonianMatrix(AtomicCoordinates):
         np.set_printoptions(precision=2)
         print(self.H)
 
-    def solve_H(self, show_solns=False):
+    def solve_H(self, show_solns=False, geteigvecs=False):
         """
         Solve the Hamiltonian matrix by diagonalization
         input: show_solns => optionally show the eigenvalues and eigenvectors.
@@ -140,7 +140,10 @@ class HamiltonianMatrix(AtomicCoordinates):
                 print("\nSolution " + str(idx + 1))
                 print("Eigenenergy: " + str(eigen_energy) + " eV")
                 print("Eigenvector: " + str(eigen_vectors[:,idx]))
-        return eigen_energies.real
+        if geteigvecs:
+            return eigen_energies.real, eigen_vectors.real
+        else:
+            return eigen_energies.real
 
     def calc_bands(self, dist_cut_off, N_images, fromfile=False):
         """
@@ -158,7 +161,7 @@ class HamiltonianMatrix(AtomicCoordinates):
         """
         e_array = [[] for i in range(len(self.orbital_dict))]
         if fromfile:
-            self.kpts = np.genfromtxt("kpoints.in", skip_header=2)
+            self.kpts = np.genfromtxt("kpoints.in", delimiter=",")
 
         else:
             # Default trajectory: W=>G=>X=>W=>L=>G
@@ -218,8 +221,8 @@ if __name__ == "__main__":
     # Example bulk silicon band structure calculation
     bulk_si = HamiltonianMatrix("bulkSi.coord", isfractionalcoord=True,
                                 simcelldim=np.array([5.431, 5.431, 5.431]))
-    eigenenergies = bulk_si.calc_bands(dist_cut_off=2.7, N_images=1)
+    eigenenergies = bulk_si.calc_bands(dist_cut_off=2.7, N_images=1, fromfile=True)
     import matplotlib.pyplot as plt
     for i in range(32):
         plt.plot(eigenenergies[i])
-    plt.show()
+    plt.savefig("bands.png")
