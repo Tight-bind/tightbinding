@@ -26,7 +26,7 @@ class McweenySolver(HamiltonianMatrix):
         else:
             HamiltonianMatrix.calc_molecule_elements(self, dist_cut_off)
         num_orbitals = len(self.orbital_dict)
-        num_electrons = 2*num_orbitals
+        num_electrons = int(10)
         mubar = self.H.trace()/num_orbitals
         # get upper and lower bounds on H
         Hmin = min([self.H[i, i] - abs(self.H[i]).sum() + abs(self.H[i, i])
@@ -46,29 +46,37 @@ class McweenySolver(HamiltonianMatrix):
     def get_total_energy(self, tol):
         rho = self.density
         H = self.H
+        iteration = 0
         residual = 10e8 # initialize with junk to enter while loop
         while residual > tol:
             t_en_old = (rho*H).trace()
             # compute unstable fixed point
             Cn = ((rho*rho - rho*rho*rho).trace()/(rho - rho*rho).trace())[0,0]
-            print(Cn)
+            # print(Cn)
             if Cn <= 0.5:
                 rho = ((1-2*Cn)*rho + (1+Cn)*rho*rho - rho*rho*rho)/(1-Cn)
             elif Cn >= 0.5:
                 rho = ((1+Cn)*rho*rho - rho*rho*rho)/Cn
             t_en_new = (rho*H).trace()
-            print(t_en_new[0,0])
+            iteration += 1
+            print(" ".join(["Iteration", str(iteration), str(t_en_new[0,0])]))
             residual = abs(t_en_new - t_en_old)
         np.set_printoptions(precision=2)
-        print(rho)
+        # print(rho)
 
 
 
 
 if __name__ == "__main__":
-    solver = McweenySolver("CH4.coord", dist_cut_off=1.4)
+    solver = McweenySolver("bulkSi.coord", dist_cut_off=2.7, isperiodic=True,
+                            N_images=1, k_point=[0, 0, 0],
+                            isfractionalcoord=True,
+                            simcelldim=np.array([5.431, 5.431, 5.431]))
     np.set_printoptions(precision=2)
     print(solver.H)
-    solver.get_total_energy(tol=1e-8)
+    solver.get_total_energy(tol=1e-12)
+
     print(2*np.sum(solver.solve_H()))
     #print(solver.H)
+    eigen_energies, eigen_vectors = np.linalg.eigh(solver.density)
+    print(eigen_energies)
