@@ -15,9 +15,9 @@ orbital_order = ["ss", "px", "py", "pz"]
 
 class AtomicCoordinates(object):
     """
-    A base class for reading in the atomic coordinates file and and 
+    A base class for reading in the atomic coordinates file and and
     performing some manipulations on the vectors.
-    """    
+    """
     def __init__(self, coord_file, species_dict={}, coords_dict={},
                  orbital_dict={}, atom_id_dict={}):
         self.raw_atom_data = np.genfromtxt(coord_file,
@@ -33,15 +33,17 @@ class AtomicCoordinates(object):
 
     def generate_dict(self, isfractionalcoord=False, simcelldimensions=None):
         """
-        Inserts the atomic coordinates and species into two dictiionaires, 
+        Inserts the atomic coordinates and species into two dictiionaires,
         each with a UID.
         """
+        self.simcelldimensions = simcelldimensions
         orbital_no = 0
         for idx, atom_dat in enumerate(self.raw_atom_data):
             if isfractionalcoord:
-                self.coords_dict.update({idx: np.array([atom_dat[1]*simcelldimensions[0],
-                                                        atom_dat[2]*simcelldimensions[1],
-                                                        atom_dat[3]*simcelldimensions[2]
+                self.coords_dict.update({idx: np.array([
+                atom_dat[1]*self.simcelldimensions[0],
+                atom_dat[2]*self.simcelldimensions[1],
+                atom_dat[3]*self.simcelldimensions[2]
                                                        ]
                                                       )
                                          }
@@ -71,10 +73,15 @@ class AtomicCoordinates(object):
         print("\nInput file interpreted as:\n")
         for key in range(len(self.species_dict)):
             print("UID: " + str(key) + ", Species: " + str(self.species_dict[key])
-                  + ", xyz coordinates: " + str(self.coords_dict[key]))
+                  + ", xyz coordinates: " + str(self.coords_dict[key]) + " Angstroms")
+        if self.simcelldimensions != None:
+            print("Fractional Coordinates used")
+            print("Simulation box dimensions %.5f x %.5f x %.5f Angtroms" %
+                 (self.simcelldimensions[0], self.simcelldimensions[1],
+                  self.simcelldimensions[2]))
+
 
 if __name__ == "__main__":
     data = AtomicCoordinates("bulkSi.coord")
     data.generate_dict(isfractionalcoord=True, simcelldimensions=np.array([5.431, 5.431, 5.431]))
     data.show_atomic_data()
-
