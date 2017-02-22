@@ -1,4 +1,6 @@
 import numpy as np
+from cmath import exp
+from itertools import product
 from Bakerbind_input import *
 
 """
@@ -13,7 +15,19 @@ Description: The base class used to retrieve all of the parameters from
              Bakerbind_input parameters are set to attributes here.
 """
 
-class TightBindingParameters:
+cdef class TightBindingParameters:
+
+    @staticmethod
+    def make_mp_mesh(simcelldims, mpdims):
+        # evenly sample unit cube -0.5 < x < 0.5
+        spacing = 1/mpdims
+        kx_points = np.arange(-0.5 + spacing[0]/2 , 0.5, spacing[0])
+        ky_points = np.arange(-0.5 + spacing[1]/2 , 0.5, spacing[1])
+        kz_points = np.arange(-0.5 + spacing[2]/2 , 0.5, spacing[2])
+        k_points = product(kx_points, ky_points, kz_points)
+        # TODO: Work out irreducible BZ points. This is inefficient.
+        return np.array([simcelldims*kpoint for kpoint in list(k_points)])
+
     def __init__(self):
         # Begin with Bakerbind_input
         self.job_name = job_name
@@ -23,6 +37,7 @@ class TightBindingParameters:
         self.on_site_dict = on_site_dict
         self.sol_method = sol_method
         self.isfractionalcoord = isfractionalcoord
+        self.dist_cut_off = dist_cut_off
         # Now coordinate file parameters
 
         coord_data = np.genfromtxt(coordinate_file,
@@ -46,10 +61,15 @@ class TightBindingParameters:
                                          coord in coord_data],
                                          dtype=np.int)
         self.num_electrons = np.sum(self.valence_charges)
+        self.total_orbitals = np.sum(self.num_orbitals)
         if isfractionalcoord:
             self.coords = np.array([coord*self.simcelldims for
                                     coord in self.coords],
                                     dtype=np.float)
+        self.mpx = mpx
+        self.mpy = mpy
+        self.mpz = mpz
+        self.kpoints = self.make_mp_mesh(self.simcelldims, np.array([mpx, mpy, mpz]))
         # send everything to input.log
         with open("input.log", "w") as input_log:
             for key, item in self.__dict__.items():

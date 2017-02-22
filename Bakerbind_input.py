@@ -3,6 +3,7 @@ job_name = "Bulk Silicon"
 sim_box_x = 5.431
 sim_box_y = 5.431
 sim_box_z = 5.431
+dist_cut_off = 2.7
 
 # Atomic parameters
 coordinate_file = "bulkSi.coord"
@@ -22,3 +23,9 @@ on_site_dict = {"Cp": -8.97,
 
 # Solution parameters
 sol_method = "diag"
+
+# MP mesh dimensions
+mpx = 2
+mpy = 2
+mpz = 2
+
