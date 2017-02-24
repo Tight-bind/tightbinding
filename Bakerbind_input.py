@@ -4,6 +4,7 @@ sim_box_x = 5.431
 sim_box_y = 5.431
 sim_box_z = 5.431
 dist_cut_off = 2.7
+smear_temp = 0.0005
 
 # Atomic parameters
 coordinate_file = "bulkSi.coord"

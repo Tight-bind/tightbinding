@@ -26,7 +26,8 @@ cdef class TightBindingParameters:
         kz_points = np.arange(-0.5 + spacing[2]/2 , 0.5, spacing[2])
         k_points = product(kx_points, ky_points, kz_points)
         # TODO: Work out irreducible BZ points. This is inefficient.
-        return np.array([simcelldims*kpoint for kpoint in list(k_points)])
+        return np.array([simcelldims*kpoint for kpoint in list(k_points)],
+               dtype=np.float64)
 
     def __init__(self):
         # Begin with Bakerbind_input
@@ -38,6 +39,7 @@ cdef class TightBindingParameters:
         self.sol_method = sol_method
         self.isfractionalcoord = isfractionalcoord
         self.dist_cut_off = dist_cut_off
+        self.smear_temp = smear_temp
         # Now coordinate file parameters
 
         coord_data = np.genfromtxt(coordinate_file,
