@@ -63,7 +63,7 @@ cdef class TightBindingParameters:
                                          coord in coord_data],
                                          dtype=np.int)
         self.num_electrons = np.sum(self.valence_charges)
-        self.total_orbitals = np.sum(self.num_orbitals)
+        self.total_orbitals = 2*np.sum(self.num_orbitals) #2x for spin degeneracy
         if isfractionalcoord:
             self.coords = np.array([coord*self.simcelldims for
                                     coord in self.coords],

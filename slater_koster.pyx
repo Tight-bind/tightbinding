@@ -1,5 +1,10 @@
 import numpy as np
-from cmath import exp
+cimport numpy as np
+from Bakerbind_input import eta_dict, on_site_dict
+cdef extern from "complex.h":
+        double complex cexp(double complex)
+
+#cdef dict on_site_dict = on_site_dict
 
 """
 Author: Jack Baker
@@ -10,19 +15,7 @@ Description: Some free floating functions and a dictinaory of lambda fucntions
 used in the implementation of the Slater-Koster tables.
 """
 
-#eta_dict = {"s_s_sigma": -1.40,
-#            "s_p_sigma": 1.84,
-#            "p_s_sigma": 1.84,
-#            "p_p_sigma": 3.24,
-#            "p_p_pi": -0.81  }
-# Dave's parameters
-eta_dict = {"s_s_sigma": -1.938,
-            "s_p_sigma": 1.745,
-            "p_s_sigma": 1.745,
-            "p_p_sigma": 3.050,
-            "p_p_pi": -1.075}
-
-def eta_coeff(l_i, l_j, bond_type):
+cdef eta_coeff(l_i, l_j, bond_type):
     """
     Retrieves the correct eta coefficient from eta_dict.
     input: l_i => Angular momentum state for the ith orbital. String.
@@ -34,7 +27,7 @@ def eta_coeff(l_i, l_j, bond_type):
     return eta_dict["_".join([l_i, l_j, bond_type])]
 
 
-def V_coeff(eta, internuclear_distance):
+cdef V_coeff(const double eta, const double internuclear_distance):
     """
     input: eta => Returned from the function eta_coeff (dict look
                   up from eta_dict.). Float64.
@@ -50,7 +43,7 @@ def V_coeff(eta, internuclear_distance):
 
 
 
-orb_dict = {
+cdef dict orb_dict = {
 "ssss": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
         V_coeff(eta_coeff("s", "s", "sigma"), dist_ij),
 "sspx": lambda x_dir_cos, y_dir_cos, z_dir_cos, dist_ij:
@@ -94,7 +87,9 @@ orb_dict = {
         (x_dir_cos * z_dir_cos *V_coeff(eta_coeff("p", "p", "pi"), dist_ij))
 }
 
-def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
+cdef slater_koster_table(orb_i, orb_j,
+                        const double x_dir_cos,const double y_dir_cos,
+                        const double z_dir_cos, const double dist_ij):
     """
     Calculates the interatomic matrix elements using the Slater-Koster table.
     string: orb_i, orb_j: ss, px, py, pz...
@@ -104,13 +99,7 @@ def slater_koster_table(orb_i, orb_j, x_dir_cos, y_dir_cos, z_dir_cos, dist_ij):
                                              z_dir_cos, dist_ij)
 
 
-on_site_dict = {"Cp": -8.97,
-                "Cs": -17.52,
-                "Hs": -13.61,
-                "Sip": -5.75, #-6.52
-                "Sis": -12.2}
-
-def on_site_energy_table(species, orbital):
+cdef on_site_energy_table(species, orbital):
     """
     Gets the on site element from the on_site_dict.
     input: species => the element the orbitak belongs to. String.
@@ -122,8 +111,8 @@ def on_site_energy_table(species, orbital):
     return on_site_dict["".join([species, orbital[0:1]])]
 
 
-def bloch_phase_factor(k_point, r_ij):
+cdef bloch_phase_factor(const double [:] k_point, const double [:] r_ij):
     """
     The Bloch plane wave phase factor.
     """
-    return exp(1J*(k_point[0]*r_ij[0] + k_point[1]*r_ij[1] + k_point[2]*r_ij[2]))
+    return cexp(1J*(k_point[0]*r_ij[0] + k_point[1]*r_ij[1] + k_point[2]*r_ij[2]))

@@ -2,7 +2,7 @@ import numpy as np
 from HamiltonianMatrix cimport norm
 cimport numpy as np
 from get_input_files import TightBindingParameters
-from slater_koster import on_site_energy_table, slater_koster_table,\
+from slater_koster cimport on_site_energy_table, slater_koster_table,\
                           bloch_phase_factor
 from libc.math cimport sqrt
 cimport cython
@@ -27,7 +27,7 @@ class HamiltonianMatrix(TightBindingParameters):
     A child class of TightBindingParameters used for building and solving
     the tight-binding Hamiltonian matrix.
     """
-    def __init__(self, double [:] kpoint, int N_images=1):
+    def __init__(self, const double [:] kpoint, const int N_images=1):
         super(HamiltonianMatrix, self).__init__()
         cdef int total_orbitals = self.total_orbitals
         cdef complex [:, :] H = np.zeros([total_orbitals,

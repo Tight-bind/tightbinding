@@ -11,7 +11,8 @@ from Cython.Build import cythonize
 #]
 
 ext_modules = ["get_input_files.pyx",
-                           "HamiltonianMatrix.pyx"]
+               "HamiltonianMatrix.pyx",
+               "slater_koster.pyx"]
 setup(
      ext_modules=cythonize(ext_modules)
 )
