@@ -20,22 +20,23 @@ elements.
 cdef np.ndarray orb_order = np.array(["ss", "px", "py", "pz"], dtype=np.str)
 
 
-@cython.boundscheck(False) # turn off bounds-checking
-@cython.wraparound(False)  # turn off negative index wrapping
+
 class HamiltonianMatrix(TightBindingParameters):
     """
     A child class of TightBindingParameters used for building and solving
     the tight-binding Hamiltonian matrix.
     """
+    @cython.boundscheck(False) # turn off bounds-checking
+    @cython.wraparound(False)  # turn off negative index wrapping
     def __init__(self, const double [:] kpoint, const int N_images=1):
         super(HamiltonianMatrix, self).__init__()
-        cdef int total_orbitals = self.total_orbitals
+        cdef int total_orbitals = self.total_orbitals/2
         cdef complex [:, :] H = np.zeros([total_orbitals,
                                           total_orbitals],
                                           dtype=np.complex)
         cdef double [:] simcell = self.simcelldims
         cdef int num_atoms = self.num_atoms
-        cdef long[:] orbitals = self.num_orbitals
+        cdef long [:] orbitals = self.num_orbitals
         cdef double [:, :] coords = self.coords
         cdef double dist_cut_off = self.dist_cut_off
         species = self.species

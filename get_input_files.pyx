@@ -40,6 +40,8 @@ cdef class TightBindingParameters:
         self.isfractionalcoord = isfractionalcoord
         self.dist_cut_off = dist_cut_off
         self.smear_temp = smear_temp
+        self.sparsity = sparsity
+        print(self.sparsity)
         # Now coordinate file parameters
 
         coord_data = np.genfromtxt(coordinate_file,
@@ -58,7 +60,7 @@ cdef class TightBindingParameters:
                                  dtype=np.str)
         self.num_orbitals = np.array([coord[4] for
                                       coord in coord_data],
-                                      dtype=np.int) 
+                                      dtype=np.int)
         self.valence_charges = np.array([coord[5] for
                                          coord in coord_data],
                                          dtype=np.int)

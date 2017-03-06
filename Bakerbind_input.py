@@ -23,10 +23,10 @@ on_site_dict = {"Cp": -8.97,
                 "Sis": -12.2}
 
 # Solution parameters
-sol_method = "diag"
+sol_method = "SP2"
+sparsity = "sparse"
 
 # MP mesh dimensions
 mpx = 2
 mpy = 2
 mpz = 2
-
