@@ -38,7 +38,7 @@ class OrderNSolver(HamiltonianMatrix):
                             + (num_electrons/total_orbitals)*I)
             print("Initial PM density built")
             #np.set_printoptions(precision=2)
-        elif self.sol_method == "SP2":
+        elif self.sol_method == "SP2" or self.sol_method == "TC2":
             self.density = (Hmax*I- self.H)/(Hmax - Hmin)
         elif self.sol_method == "HPCP":
             pass
@@ -65,6 +65,27 @@ class OrderNSolver(HamiltonianMatrix):
                 rho = ((1-2*Cn)*rho + (1+Cn)*rho2 - rho3)/(1-Cn)
             else:
                 rho = ((1+Cn)*rho2 - rho3)/Cn
+            t_en_new = (rho*H).trace()
+            iteration += 1
+            print(" ".join(["Iteration", str(iteration), str(t_en_new[0,0])]))
+            residual = abs(t_en_new - t_en_old)
+
+    def get_TC2_energy(self, tol=1e-5):
+        rho = np.matrix(self.density.astype(float))
+        H = np.matrix(self.H.astype(float))
+        num_electrons = self.num_electrons
+        #Ignore complex warning here. Matrix made at Gamma so no imag part
+        iteration = 0
+        residual = 2*tol # initialize with junk to enter while loop
+        print("Beginning TC2 loop")
+        while residual > tol:
+            t_en_old = (rho*H).trace()
+            print(rho.trace())
+            # compute unstable fixed point
+            if 2*rho.trace() > num_electrons:
+                rho = rho*rho
+            else:
+                rho = 2*rho - rho*rho
             t_en_new = (rho*H).trace()
             iteration += 1
             print(" ".join(["Iteration", str(iteration), str(t_en_new[0,0])]))
@@ -105,6 +126,7 @@ class OrderNSolver(HamiltonianMatrix):
             while residual > tol:
                 t_en_old =(rho*H).trace()
                 rho_tmp = -rho*rho + rho
+                print(rho.trace())
                 trace_rho_tmp = rho_tmp.trace()
                 if (abs(2*trace_rho - 2*trace_rho_tmp - num_electrons) >
                     abs(2*trace_rho + 2*trace_rho_tmp - num_electrons)):
@@ -124,7 +146,7 @@ if __name__ == "__main__":
     solver = OrderNSolver(np.array([0, 0, 0], dtype=np.float64))
     #np.set_printoptions(precision=2)
     #print(solver.H)
-    solver.get_SP2_energy()
+    solver.get_TC2_energy()
     #print(solver.solve_H())
     #solver.show_matrix()
     #print(2*np.sum(solver.solve_H()))
